@@ -1,0 +1,48 @@
+<html lang="en"> 
+  <head>
+  <meta charset="utf-8">
+  <title>Chat Room</title>
+  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+  <script>
+    var socket = io.connect('http://localhost:8124'); 
+    socket.on('connect', function() {
+      var currentdate = new Date(); 
+      var datetime = currentdate.getFullYear() + ""
+                + ('0' + (currentdate.getMonth()+1)).slice(-2) + ""
+                + ('0' + currentdate.getDate()).slice(-2) + ""
+                + currentdate.getHours() + ""
+                + currentdate.getMinutes() + ""
+                + currentdate.getSeconds();
+      socket.emit('addme', 'User' + datetime); 
+    });
+    socket.on('chat',function(username, data) { 
+        var p = document.createElement('p'); 
+        p.innerHTML = username + ': ' + data;
+        document.getElementById('output').appendChild(p);
+        $("#data").val("");
+    });
+    window.addEventListener('load',function() { 
+        document.getElementById('sendtext').addEventListener('click',function() {
+            var text = document.getElementById('data').value; 
+            socket.emit('sendchat', text);
+        }, false); 
+    }, false);
+  </script>
+  <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      #send { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      #data { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #output { list-style-type: none; margin: 0; padding: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="output">
+    </div>
+    <div id="send">
+      <input type="text" id="data" size="100"/><button id="sendtext">Send</button>
+    </div>
+  </body>
+</html>
